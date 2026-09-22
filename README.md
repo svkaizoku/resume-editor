@@ -38,6 +38,9 @@ use Import JSON to load `resume-data.json`.)
 - **Skills:** type a skill and press **Enter** to add a chip; click **×** to remove.
 - **Experience / Education / Languages / Other sections:** use **+ Add** to add a block,
   **Remove** to delete one, **+ Add bullet / + Add item** for list entries.
+- **Reorder:** grab the **⠿** handle on any block (experience, education, language, link,
+  bullet, section item) and drag it up or down. Skill chips are draggable directly — grab a
+  chip and drop it where you want. Drops only land within the same list.
 - Everything **autosaves** to your browser. Refreshing keeps your edits.
 
 ## Save / share / reset

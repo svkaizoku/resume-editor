@@ -122,6 +122,92 @@ function boundField(label, path, { textarea = false, placeholder = "" } = {}) {
   return el("div", { class: "field" }, [el("label", { text: label }), input]);
 }
 
+/* ---------- drag-to-reorder ---------- */
+let DND = null; // { key, from }
+
+// Resolve a drag "key" to the array it reorders. Nested lists encode the
+// parent index in the key (e.g. "exp-bullets-2").
+function listByKey(key) {
+  switch (key) {
+    case "skills": return state.skills;
+    case "languages": return state.languages;
+    case "experience": return state.experience;
+    case "education": return state.education;
+    case "extras": return state.extras;
+    case "links": return state.contact.links;
+  }
+  let m = key.match(/^exp-bullets-(\d+)$/);
+  if (m) return state.experience[+m[1]].bullets;
+  m = key.match(/^extra-items-(\d+)$/);
+  if (m) return state.extras[+m[1]].items;
+  return null;
+}
+
+function moveInList(key, from, to) {
+  const arr = listByKey(key);
+  if (!arr || from === to || to < 0 || to >= arr.length) return;
+  const [item] = arr.splice(from, 1);
+  arr.splice(to, 0, item);
+  renderAll();
+  save();
+}
+
+function clearDragOver() {
+  document.querySelectorAll(".drag-over").forEach((n) => n.classList.remove("drag-over"));
+}
+
+// A small grip that is the actual drag source for its block.
+function dragHandle(key, idx) {
+  return el("span", {
+    class: "drag-handle",
+    title: "Drag to reorder",
+    draggable: "true",
+    text: "⠿", // ⠿
+    ondragstart: (e) => {
+      DND = { key, from: idx };
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(idx));
+    },
+    ondragend: () => { DND = null; clearDragOver(); },
+  });
+}
+
+// Mark `node` as a drop slot for `key` at position `idx`.
+function dropTarget(node, key, idx) {
+  node.addEventListener("dragover", (e) => {
+    if (DND && DND.key === key) {
+      e.preventDefault();
+      node.classList.add("drag-over");
+    }
+  });
+  node.addEventListener("dragleave", () => node.classList.remove("drag-over"));
+  node.addEventListener("drop", (e) => {
+    if (DND && DND.key === key) {
+      e.preventDefault();
+      node.classList.remove("drag-over");
+      moveInList(key, DND.from, idx);
+    }
+  });
+  return node;
+}
+
+// Chips have no editable text, so the whole chip is both source and target.
+function attachChipDnD(node, key, idx) {
+  node.setAttribute("draggable", "true");
+  node.addEventListener("dragstart", (e) => {
+    DND = { key, from: idx };
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(idx));
+    node.classList.add("dragging");
+  });
+  node.addEventListener("dragend", () => {
+    DND = null;
+    node.classList.remove("dragging");
+    clearDragOver();
+  });
+  return dropTarget(node, key, idx);
+}
+
 /* ---------- render: FORM ---------- */
 function renderForm() {
   const f = document.getElementById("editor");
@@ -143,12 +229,17 @@ function renderForm() {
   f.appendChild(boundField("Location", "contact.location"));
   state.contact.links.forEach((_, i) => {
     f.appendChild(
-      el("div", { class: "row" }, [
-        boundField("Link label", `contact.links.${i}.label`),
-        withRemove(boundField("Link URL", `contact.links.${i}.url`), () =>
-          removeFrom(state.contact.links, i)
-        ),
-      ])
+      block(
+        `Link ${i + 1}`,
+        () => removeFrom(state.contact.links, i),
+        [
+          el("div", { class: "row" }, [
+            boundField("Link label", `contact.links.${i}.label`),
+            boundField("Link URL", `contact.links.${i}.url`),
+          ]),
+        ],
+        { key: "links", idx: i }
+      )
     );
   });
   f.appendChild(
@@ -161,17 +252,17 @@ function renderForm() {
   f.appendChild(el("h2", { text: "Skills" }));
   const chips = el("div", { class: "chips" });
   state.skills.forEach((skill, i) => {
-    chips.appendChild(
-      el("span", { class: "chip" }, [
-        skill,
-        el("button", {
-          type: "button",
-          title: "Remove",
-          text: "×",
-          onclick: () => removeFrom(state.skills, i),
-        }),
-      ])
-    );
+    const chip = el("span", { class: "chip", title: "Drag to reorder" }, [
+      skill,
+      el("button", {
+        type: "button",
+        draggable: "false",
+        title: "Remove",
+        text: "×",
+        onclick: () => removeFrom(state.skills, i),
+      }),
+    ]);
+    chips.appendChild(attachChipDnD(chip, "skills", i));
   });
   f.appendChild(chips);
   const skillInput = el("input", {
@@ -194,12 +285,16 @@ function renderForm() {
   f.appendChild(el("h2", { text: "Languages" }));
   state.languages.forEach((_, i) => {
     f.appendChild(
-      withRemove(
-        el("div", { class: "row" }, [
-          boundField("Language", `languages.${i}.name`),
-          boundField("Level", `languages.${i}.level`),
-        ]),
-        () => removeFrom(state.languages, i)
+      block(
+        `Language ${i + 1}`,
+        () => removeFrom(state.languages, i),
+        [
+          el("div", { class: "row" }, [
+            boundField("Language", `languages.${i}.name`),
+            boundField("Level", `languages.${i}.level`),
+          ]),
+        ],
+        { key: "languages", idx: i }
       )
     );
   });
@@ -230,14 +325,19 @@ function renderForm() {
   f.appendChild(el("h2", { text: "Education" }));
   state.education.forEach((_, i) => {
     f.appendChild(
-      block(`Education ${i + 1}`, () => removeFrom(state.education, i), [
-        boundField("Degree", `education.${i}.degree`),
-        boundField("School", `education.${i}.school`),
-        el("div", { class: "row" }, [
-          boundField("Start", `education.${i}.start`),
-          boundField("End", `education.${i}.end`),
-        ]),
-      ])
+      block(
+        `Education ${i + 1}`,
+        () => removeFrom(state.education, i),
+        [
+          boundField("Degree", `education.${i}.degree`),
+          boundField("School", `education.${i}.school`),
+          el("div", { class: "row" }, [
+            boundField("Start", `education.${i}.start`),
+            boundField("End", `education.${i}.end`),
+          ]),
+        ],
+        { key: "education", idx: i }
+      )
     );
   });
   f.appendChild(
@@ -263,6 +363,7 @@ function renderForm() {
 }
 
 function experienceBlock(exp, i) {
+  const bulletKey = `exp-bullets-${i}`;
   const bulletList = el("ul", { class: "bullets" });
   exp.bullets.forEach((_, bi) => {
     const ta = el("textarea", {
@@ -275,36 +376,42 @@ function experienceBlock(exp, i) {
       },
     });
     ta.value = exp.bullets[bi];
-    bulletList.appendChild(
-      el("li", {}, [
-        ta,
-        el("button", {
-          type: "button",
-          class: "mini danger",
-          text: "×",
-          title: "Remove bullet",
-          onclick: () => removeFrom(exp.bullets, bi),
-        }),
-      ])
-    );
+    const li = el("li", {}, [
+      dragHandle(bulletKey, bi),
+      ta,
+      el("button", {
+        type: "button",
+        class: "mini danger",
+        text: "×",
+        title: "Remove bullet",
+        onclick: () => removeFrom(exp.bullets, bi),
+      }),
+    ]);
+    bulletList.appendChild(dropTarget(li, bulletKey, bi));
   });
 
-  return block(exp.role || `Experience ${i + 1}`, () => removeFrom(state.experience, i), [
-    boundField("Role / title", `experience.${i}.role`),
-    boundField("Company", `experience.${i}.company`),
-    el("div", { class: "row" }, [
-      boundField("Start", `experience.${i}.start`),
-      boundField("End", `experience.${i}.end`),
-    ]),
-    boundField("Location", `experience.${i}.location`),
-    boundField("One-line description", `experience.${i}.summary`),
-    el("label", { class: "field", text: "Bullets" }),
-    bulletList,
-    addButton("+ Add bullet", () => pushTo(exp.bullets, "")),
-  ]);
+  return block(
+    exp.role || `Experience ${i + 1}`,
+    () => removeFrom(state.experience, i),
+    [
+      boundField("Role / title", `experience.${i}.role`),
+      boundField("Company", `experience.${i}.company`),
+      el("div", { class: "row" }, [
+        boundField("Start", `experience.${i}.start`),
+        boundField("End", `experience.${i}.end`),
+      ]),
+      boundField("Location", `experience.${i}.location`),
+      boundField("One-line description", `experience.${i}.summary`),
+      el("label", { class: "field", text: "Bullets" }),
+      bulletList,
+      addButton("+ Add bullet", () => pushTo(exp.bullets, "")),
+    ],
+    { key: "experience", idx: i }
+  );
 }
 
 function extraBlock(extra, i) {
+  const itemKey = `extra-items-${i}`;
   const itemList = el("ul", { class: "bullets" });
   extra.items.forEach((_, ii) => {
     const ta = el("textarea", {
@@ -316,52 +423,50 @@ function extraBlock(extra, i) {
       },
     });
     ta.value = extra.items[ii];
-    itemList.appendChild(
-      el("li", {}, [
-        ta,
-        el("button", {
-          type: "button",
-          class: "mini danger",
-          text: "×",
-          title: "Remove item",
-          onclick: () => removeFrom(extra.items, ii),
-        }),
-      ])
-    );
-  });
-
-  return block(extra.heading || `Section ${i + 1}`, () => removeFrom(state.extras, i), [
-    boundField("Heading", `extras.${i}.heading`),
-    el("label", { class: "field", text: "Items" }),
-    itemList,
-    addButton("+ Add item", () => pushTo(extra.items, "")),
-  ]);
-}
-
-/* ---------- form structural helpers ---------- */
-function block(title, onRemove, children) {
-  return el("div", { class: "block" }, [
-    el("div", { class: "block-head" }, [
-      el("span", { class: "idx", text: title }),
+    const li = el("li", {}, [
+      dragHandle(itemKey, ii),
+      ta,
       el("button", {
         type: "button",
         class: "mini danger",
-        text: "Remove",
-        onclick: onRemove,
+        text: "×",
+        title: "Remove item",
+        onclick: () => removeFrom(extra.items, ii),
       }),
-    ]),
-    ...children,
-  ]);
+    ]);
+    itemList.appendChild(dropTarget(li, itemKey, ii));
+  });
+
+  return block(
+    extra.heading || `Section ${i + 1}`,
+    () => removeFrom(state.extras, i),
+    [
+      boundField("Heading", `extras.${i}.heading`),
+      el("label", { class: "field", text: "Items" }),
+      itemList,
+      addButton("+ Add item", () => pushTo(extra.items, "")),
+    ],
+    { key: "extras", idx: i }
+  );
 }
-function withRemove(fieldNode, onRemove) {
-  const wrap = el("div", { class: "field" });
+
+/* ---------- form structural helpers ---------- */
+function block(title, onRemove, children, dnd) {
   const head = el("div", { class: "block-head" }, [
-    el("span", {}),
-    el("button", { type: "button", class: "mini danger", text: "×", onclick: onRemove }),
+    el("span", { class: "idx" }, [
+      dnd ? dragHandle(dnd.key, dnd.idx) : null,
+      " " + title,
+    ]),
+    el("button", {
+      type: "button",
+      class: "mini danger",
+      text: "Remove",
+      onclick: onRemove,
+    }),
   ]);
-  wrap.appendChild(head);
-  wrap.appendChild(fieldNode);
-  return wrap;
+  const node = el("div", { class: "block" }, [head, ...children]);
+  if (dnd) dropTarget(node, dnd.key, dnd.idx);
+  return node;
 }
 function addButton(label, onAdd) {
   return el("button", { type: "button", class: "add-btn", text: label, onclick: onAdd });

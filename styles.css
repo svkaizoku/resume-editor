@@ -147,6 +147,25 @@ button.danger:hover { border-color: var(--danger); color: var(--danger); }
 .bullets li { display: flex; gap: 0.4rem; margin-bottom: 0.35rem; align-items: flex-start; }
 .bullets textarea { flex: 1; }
 
+/* drag-to-reorder */
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  user-select: none;
+  padding: 0 0.35rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.drag-handle:active { cursor: grabbing; }
+.chip[draggable="true"] { cursor: grab; }
+.chip.dragging { opacity: 0.45; }
+.block.drag-over,
+.chip.drag-over,
+.bullets li.drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
 /* ---------- Preview (A4 resume) ---------- */
 .preview-wrap { display: flex; justify-content: center; }
 .preview {
