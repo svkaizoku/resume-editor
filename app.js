@@ -491,7 +491,7 @@ function section(heading, bodyNodes) {
 }
 
 function renderPreview() {
-  const p = document.getElementById("preview");
+  const p = document.getElementById("doc");
   p.innerHTML = "";
 
   p.appendChild(el("h1", { class: "r-name", text: state.name || "" }));
@@ -572,6 +572,45 @@ function renderPreview() {
     );
     p.appendChild(section(x.heading || "", ul));
   });
+
+  updateFit();
+}
+
+/* ---------- fit to one page ----------
+ * When enabled, step the base font scale down until the rendered content
+ * height fits within a single A4 page's inner height. Content spacing is all
+ * em-based (see styles.css), so one --scale variable compresses everything. */
+const PAGE_PAD_MM = 16; // must match .preview vertical padding
+const mmToPx = (mm) => (mm * 96) / 25.4;
+
+function updateFit() {
+  const preview = document.getElementById("preview");
+  const doc = document.getElementById("doc");
+  if (!preview || !doc) return;
+
+  if (!state.fitOnePage) {
+    preview.style.setProperty("--scale", "1");
+    return;
+  }
+
+  const avail = mmToPx(297) - mmToPx(PAGE_PAD_MM) * 2;
+  let s = 1;
+  for (let n = 0; n < 40; n++) {
+    preview.style.setProperty("--scale", s.toFixed(3));
+    if (doc.scrollHeight <= Math.ceil(avail) + 1) break; // reading scrollHeight forces reflow
+    s -= 0.02;
+    if (s < 0.5) { // floor so a huge resume degrades gracefully instead of vanishing
+      preview.style.setProperty("--scale", "0.5");
+      break;
+    }
+  }
+}
+
+function setFitLabel() {
+  const btn = document.getElementById("btn-fit");
+  if (!btn) return;
+  btn.textContent = state.fitOnePage ? "Actual size" : "Fit to 1 page";
+  btn.classList.toggle("active", !!state.fitOnePage);
 }
 
 function experienceItem(e) {
@@ -600,10 +639,19 @@ function dateRange(start, end) {
 function renderAll() {
   renderForm();
   renderPreview();
+  setFitLabel();
 }
 
 /* ---------- toolbar ---------- */
 function wireToolbar() {
+  setFitLabel();
+  document.getElementById("btn-fit").addEventListener("click", () => {
+    state.fitOnePage = !state.fitOnePage;
+    save();
+    setFitLabel();
+    updateFit();
+  });
+
   document.getElementById("btn-export-pdf").addEventListener("click", () => window.print());
 
   document.getElementById("btn-export-json").addEventListener("click", () => {

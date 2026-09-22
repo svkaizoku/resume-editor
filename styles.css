@@ -47,6 +47,7 @@ button {
   cursor: pointer;
 }
 button:hover { border-color: var(--accent); color: var(--accent); }
+#btn-fit.active { background: var(--accent-weak); border-color: var(--accent); color: var(--accent); }
 #btn-export-pdf { background: var(--accent); color: #fff; border-color: var(--accent); }
 #btn-export-pdf:hover { filter: brightness(1.08); color: #fff; }
 button.danger:hover { border-color: var(--danger); color: var(--danger); }
@@ -168,55 +169,57 @@ button.danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* ---------- Preview (A4 resume) ---------- */
 .preview-wrap { display: flex; justify-content: center; }
+/* Vertical padding stays fixed (page margin); only --scale drives content size.
+   Every font-size / vertical spacing below is in em so one variable compresses all. */
 .preview {
   background: #fff;
   color: #111;
   width: 210mm;
   min-height: 297mm;
-  padding: 18mm 16mm;
+  padding: 16mm 16mm;
   box-shadow: 0 2px 14px rgba(0,0,0,0.12);
-  font-size: 10.5pt;
+  font-size: calc(10.5pt * var(--scale, 1));
   line-height: 1.4;
 }
-.preview .r-name { font-size: 22pt; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
-.preview .r-title { color: #374151; margin: 0.15rem 0 0.4rem; font-size: 11pt; }
-.preview .r-contact { color: #374151; font-size: 9.5pt; display: flex; flex-wrap: wrap; gap: 0.15rem 0.9rem; margin-bottom: 0.6rem; }
+.preview .r-name { font-size: 2.1em; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
+.preview .r-title { color: #374151; margin: 0.15em 0 0.4em; font-size: 1.05em; }
+.preview .r-contact { color: #374151; font-size: 0.905em; display: flex; flex-wrap: wrap; gap: 0.15em 0.9em; margin-bottom: 0.6em; }
 .preview .r-contact a { color: #1d4ed8; text-decoration: none; }
-.preview hr { border: none; border-top: 2px solid #111; margin: 0.5rem 0 0.9rem; }
+.preview hr { border: none; border-top: 2px solid #111; margin: 0.5em 0 0.9em; }
 
-.preview .r-section { margin-bottom: 0.9rem; }
+.preview .r-section { margin-bottom: 0.9em; }
 .preview .r-section > h3 {
-  font-size: 10.5pt;
+  font-size: 1em;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #111;
   border-bottom: 1px solid #9ca3af;
-  padding-bottom: 0.15rem;
-  margin: 0 0 0.5rem;
+  padding-bottom: 0.15em;
+  margin: 0 0 0.5em;
 }
-.preview .r-summary { margin: 0 0 0.4rem; }
+.preview .r-summary { margin: 0 0 0.4em; }
 
-.preview .r-item { margin-bottom: 0.6rem; }
-.preview .r-item-top { display: flex; justify-content: space-between; gap: 1rem; }
+.preview .r-item { margin-bottom: 0.6em; }
+.preview .r-item-top { display: flex; justify-content: space-between; gap: 1em; }
 .preview .r-item-role { font-weight: 700; }
 .preview .r-item-org { color: #374151; }
-.preview .r-item-meta { color: #6b7280; font-size: 9pt; white-space: nowrap; text-align: right; }
-.preview .r-item-desc { color: #4b5563; font-style: italic; font-size: 9.5pt; margin: 0.1rem 0; }
-.preview .r-item ul { margin: 0.2rem 0 0; padding-left: 1.1rem; }
-.preview .r-item li { margin-bottom: 0.15rem; }
+.preview .r-item-meta { color: #6b7280; font-size: 0.857em; white-space: nowrap; text-align: right; }
+.preview .r-item-desc { color: #4b5563; font-style: italic; font-size: 0.905em; margin: 0.1em 0; }
+.preview .r-item ul { margin: 0.2em 0 0; padding-left: 1.1em; }
+.preview .r-item li { margin-bottom: 0.15em; }
 
-.preview .r-skills { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.preview .r-skills { display: flex; flex-wrap: wrap; gap: 0.3em; }
 .preview .r-skill {
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  padding: 0.1rem 0.45rem;
-  font-size: 9.5pt;
+  padding: 0.1em 0.45em;
+  font-size: 0.905em;
 }
-.preview .r-langs { display: flex; flex-wrap: wrap; gap: 0.2rem 1.2rem; }
+.preview .r-langs { display: flex; flex-wrap: wrap; gap: 0.2em 1.2em; }
 .preview .r-lang b { font-weight: 600; }
 .preview .r-lang span { color: #6b7280; }
-.preview .r-extra-items { margin: 0.2rem 0 0; padding-left: 1.1rem; }
+.preview .r-extra-items { margin: 0.2em 0 0; padding-left: 1.1em; }
 
 .hint { font-size: 0.75rem; color: var(--muted); margin: 0.2rem 0 0.6rem; }
 
@@ -231,7 +234,7 @@ button.danger:hover { border-color: var(--danger); color: var(--danger); }
     width: auto;
     min-height: auto;
     box-shadow: none;
-    padding: 14mm 14mm;
+    padding: 16mm 16mm;
     margin: 0;
   }
   .preview .r-contact a { color: #111; }

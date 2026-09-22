@@ -45,8 +45,11 @@ use Import JSON to load `resume-data.json`.)
 
 ## Save / share / reset
 
+- **Fit to 1 page** — toggle. Shrinks the font and spacing just enough for all content to fit a
+  single A4 page, and keeps it that way as you edit. Click again (*Actual size*) to turn off.
 - **Export PDF** — opens the print dialog. Choose *Save as PDF*. Print CSS hides the editor and
-  prints only the resume at A4. (Tip: turn off "Headers and footers" in the print dialog.)
+  prints only the resume at A4. (Tip: turn off "Headers and footers" in the print dialog. If it
+  still spills to a second page, click *Fit to 1 page* first.)
 - **Export JSON** — download your data as a `.json` backup.
 - **Import JSON** — load a previously exported `.json` (or `resume-data.json`).
 - **Reset** — discard local edits and reload the original seed.

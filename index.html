@@ -10,6 +10,7 @@
   <header class="toolbar">
     <span class="brand">Resume Editor</span>
     <div class="toolbar-actions">
+      <button id="btn-fit" type="button" title="Shrink content to fit a single page">Fit to 1 page</button>
       <button id="btn-export-pdf" type="button" title="Opens the print dialog — choose 'Save as PDF'">Export PDF</button>
       <button id="btn-export-json" type="button">Export JSON</button>
       <button id="btn-import-json" type="button">Import JSON</button>
@@ -25,7 +26,7 @@
 
     <section class="preview-wrap" aria-label="Resume preview">
       <div class="preview" id="preview">
-        <!-- resume is rendered by app.js -->
+        <div id="doc"><!-- resume is rendered by app.js --></div>
       </div>
     </section>
   </main>
