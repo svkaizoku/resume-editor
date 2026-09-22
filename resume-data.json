@@ -1,0 +1,88 @@
+{
+  "name": "Vignesh Sundaresan",
+  "title": "Software Developer with 8+ years of industry experience.",
+  "contact": {
+    "email": "vigneshsundaresan27@gmail.com",
+    "phone": "+49 1791170484",
+    "location": "Berlin, Germany",
+    "links": [
+      { "label": "LinkedIn", "url": "https://www.linkedin.com/in/vignesh-sundaresan-02057a116/" }
+    ]
+  },
+  "summary": "Software engineer with 8+ years building and scaling SaaS products and internal platforms. Experienced across greenfield product development, event-driven backends, and leading small teams.",
+  "skills": [
+    "Kotlin", "Java", "Javascript",
+    "Kafka", "Kubernetes", "AWS", "ArgoCD",
+    "Grafana", "Sentry", "Prometheus",
+    "Gradle", "Github", "Github Actions",
+    "Postgres", "MySQL", "Redis",
+    "Microservice Architecture", "Event Driven Architecture", "Monolith"
+  ],
+  "languages": [
+    { "name": "English", "level": "Proficient" },
+    { "name": "Tamil", "level": "Native" }
+  ],
+  "experience": [
+    {
+      "role": "Software Engineer 2 - Customer Support",
+      "company": "Trade Republic Bank GmbH",
+      "start": "07/2023",
+      "end": "Present",
+      "location": "Berlin, Germany",
+      "summary": "Trade Republic Bank GmbH is a German online broker and bank headquartered in Berlin.",
+      "bullets": [
+        "Built and launched Resolve (Case Management System) to replace Zendesk fully, saving 1.5M/year.",
+        "Led the implementation of Email ticket creation, bringing Resolve ticket coverage to 100% and making Zendesk a fallback, using the Sendgrid email provider.",
+        "Implemented automations in Resolve to improve ticket coverage from 58% to 98%.",
+        "Built the base for emitting events in Resolve to build dashboards in Looker using Snowflake and Kinesis."
+      ]
+    },
+    {
+      "role": "Senior Software Engineer - Qntrl",
+      "company": "Zoho",
+      "start": "11/2017",
+      "end": "03/2023",
+      "location": "Chennai, India",
+      "summary": "A workflow management software (https://www.qntrl.com).",
+      "bullets": [
+        "Contributed to development of a greenfield SaaS application enabling business owners to take complete control of their workflows. Part of a 10-member team that successfully launched Qntrl worldwide in September 2019.",
+        "Worked closely with the Head of Engineering and Head of Product to completely revamp the product to a new version, leading a team of 6 members. Launched the new version successfully as a BETA.",
+        "Evolved to become a module lead. Responsible for managing one developer, mentoring juniors, and performing code reviews."
+      ]
+    },
+    {
+      "role": "Software Engineer - Zoho Projects",
+      "company": "Zoho Projects",
+      "start": "06/2016",
+      "end": "11/2017",
+      "location": "Chennai, India",
+      "summary": "Project management software (https://www.zoho.com/projects).",
+      "bullets": [
+        "Responsible for software maintenance across the codebase. Participated in user requirements gathering, project planning, design, implementation and testing.",
+        "Refactored legacy client-side and server-side code, improving page load time and query processing time by 20%."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.Tech Information Technology",
+      "school": "SSN Institutions",
+      "start": "07/2012",
+      "end": "05/2016"
+    }
+  ],
+  "extras": [
+    {
+      "heading": "Certifications",
+      "items": [
+        "Certified Kubernetes Application Developer (CKAD) - The Linux Foundation"
+      ]
+    },
+    {
+      "heading": "Volunteering",
+      "items": [
+        "Member, Jananam (2015) - NGO helping underprivileged children with education. Worked actively during the 2015 Chennai floods providing education materials for affected people."
+      ]
+    }
+  ]
+}
